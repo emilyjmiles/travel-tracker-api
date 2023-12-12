@@ -11,7 +11,7 @@ app.locals = {
   travelers,
   trips,
   destinations
-}
+};
 
 app.use(cors());
 app.use(express.json());
@@ -19,7 +19,7 @@ app.use(express.json());
 const isValidDate = dateString => {
   var regEx = /^\d{4}[\/](0?[1-9]|1[012])[\/](0?[1-9]|[12][0-9]|3[01])$/;
   return regEx.test(dateString);
-}
+};
 
 app.get('/api/v1/travelers', (req, res) => {
   const { travelers } = app.locals;
@@ -62,7 +62,7 @@ app.post('/api/v1/trips', (req, res) => {
     status,
     suggestedActivities } = req.body;
 
-  const requiredProperties = ['id', 'userID', 'destinationID', 'travelers', 'date', 'duration', 'status', 'suggestedActivities']
+  const requiredProperties = ['id', 'userID', 'destinationID', 'travelers', 'date', 'duration', 'status', 'suggestedActivities'];
 
   for (let requiredParameter of requiredProperties) {
     if (req.body[requiredParameter] === undefined) {
@@ -76,7 +76,7 @@ app.post('/api/v1/trips', (req, res) => {
   if (!isValidDate(date)) {
     return res.status(422).json({
       message: `Invalid date format submitted`
-    })
+    });
   }
 
   // Check if id already exists
@@ -89,7 +89,7 @@ app.post('/api/v1/trips', (req, res) => {
   const existingDestination = app.locals.destinations.find(destination => destination.id === destinationID);
 
   if (!existingDestination) {
-    return res.status(404).json({ message: `Destination with id ${destinationID} doesn't exist.` })
+    return res.status(404).json({ message: `Destination with id ${destinationID} doesn't exist.` });
   }
 
   app.locals.trips.push({ id, userID, destinationID, travelers, date, duration, status, suggestedActivities });
@@ -131,7 +131,7 @@ app.post('/api/v1/destinations', (req, res) => {
   const existingDestination = app.locals.destinations.find(destination => destination.id === id);
 
   if (existingDestination) {
-    return res.status(422).json({ message: `Destination with id ${id} already exists.` })
+    return res.status(422).json({ message: `Destination with id ${id} already exists.` });
   }
 
   app.locals.destinations.push({ id, destination, estimatedLodgingCostPerDay, estimatedFlightCostPerPerson, image, alt });
@@ -158,19 +158,19 @@ app.post('/api/v1/updateTrip', (req, res) => {
   let foundTrip = app.locals.trips.find(trip => trip.id === id);
 
   if (!foundTrip) {
-    return res.status(404).json({ message: `No trip with id ${id} found.` })
+    return res.status(404).json({ message: `No trip with id ${id} found.` });
   }
 
   if (status && ['pending', 'approved'].includes(status)) {
     foundTrip.status = status;
   } else if (status && !['pending', 'approved'].includes(status)) {
-      return res.status(422).json({ message: 'status must either be pending or approved.' });
+    return res.status(422).json({ message: 'status must either be pending or approved.' });
   }
 
   if (suggestedActivities && Array.isArray(suggestedActivities)) {
     foundTrip.suggestedActivities = [...foundTrip.suggestedActivities, ...suggestedActivities];
   } else if (suggestedActivities && !Array.isArray(suggestedActivities)) {
-    return res.status(422).json({ message: "suggestedActivities must be an array." })
+    return res.status(422).json({ message: "suggestedActivities must be an array." });
   }
 
   return res.status(200).json({
@@ -188,16 +188,18 @@ app.delete('/api/v1/trips/:id', (req, res) => {
   if (!tripToDelete) {
     return res.status(404).json({
       message: `No found trip with id of #${id}.`
-    })
+    });
   }
 
   app.locals.trips = trips.filter(trip => trip.id !== parseInt(id));
 
   res.status(200).json({
     message: `Trip #${id} has been deleted`
-  })
-})
+  });
+});
 
 app.listen(port, () => {
-  console.log(`${app.locals.title} is now running on http://localhost:${port} !`)
+  console.log(`${app.locals.title} is now running on http://localhost:${port} !`);
 });
+
+module.exports = app;
